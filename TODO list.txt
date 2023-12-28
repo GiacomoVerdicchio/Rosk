@@ -1,0 +1,45 @@
+TODO:
+-testare funzione computeAttack
+	(aggiungere che quando conquisto un territorio prendo una carta)		DONE
+	(aggiungere check su quante truppe voglio usare)				DONE
+
+-fare funzione per controllo continenti							DONE
+
+-fare funzione calcolo truppe in fortificazione
+ (fare check carte)									DONE
+ (fare anche funzione utilizzo carte territorio per aumentare numero fortificazione)	DONE
+ (fare anche limite massimo nelle carte)				
+
+
+-fare funzioni di gestione fortificazione						DONE 
+(aggiungere controllo che il giocatore deve deployare tutte le truppe in fase di   	DONE
+ 	fortificazione ( e solo dopo posso andare avanti, quando trops=0))
+(il calculateBasicTroopsToFortify va chiamato dal controller base)			DONE
+
+
+-fare funzioni per quando si muore							DONE
+-fare funzione basic per check fine partita (1 solo player vivo)			DONE
+-fare funzione per spostamento truppe (con relativo check di deployable)		DONE
+	(cioè check sul target nat id player giusto; n° of troops>0 e giusto;
+		)
+	-------------------------------------------------------------------------------
+SERVER
+-fare funzione di registrazione dei nomi (in clientHandler)				DONE
+-sistemare il loop sbagliato sull'input quando è sbagliato 
+-sistemare no serializable exception nell'invio di ListOfLobbies			DONE
+-completare setup (prima delle ready) e testare
+
+-lightView tutta da fare
+-rispondere al messaggio del nome
+
+
+
+
+
+
+
+NOTES:
+-carte obbiettivo non ancora modellate --> si potrebbe 
+-quando avrò quasi finito devo mergiare i checkAttack and checkAttackDefend
+-un domani potrò aggiungere la possibilità di sospendere il match (e crearne uno nuovo in un'altra modalità (cioè creando o joinando) 	)->PER ORA UNA VOLTA SCELTO CREATE O JOIN RIMANGO
+BLOCCATO Lì e DEVO PER FORZA ANDARE AVANTI COSì

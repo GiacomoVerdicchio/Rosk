@@ -1,0 +1,52 @@
+{
+
+
+
+  "CentralAmerica": 2,
+  "Alaska": 0,
+  "Alberta": 1,
+  "Greenland": 1,
+  "EastUS": 2,
+  "WestUS": 2,
+  "Quebec": 1,
+  "Ontario": 1,
+  "NorthTerritory": 2,
+
+  "Argentina": 0,
+  "Brazil": 0,
+  "Peru": 0,
+  "Venezuela": 0,
+
+  "WestEurope": 2,
+  "Iceland": 0,
+  "Ukraine":1 ,
+  "SouthEurope": 2,
+  "NorthEurope": 1,
+  "Scandinavia": 1,
+  "GreatBritain": 2,
+
+  "NorthAfrica": 1,
+  "SouthAfrica": 2,
+  "Congo": 0,
+  "Egypt": 0,
+  "Madagascar": 1,
+  "EastAfrica": 0,
+
+  "China": 0,
+  "Ural": 1,
+  "Mongolia": 0,
+  "Japan": 2,
+  "Siberia": 1,
+  "Siam": 0,
+  "India": 1,
+  "MiddleEast": 0,
+  "Kamchatka": 0,
+  "Afghanistan": 1,
+  "Yakutsk": 1,
+  "Irkutsk": 1,
+
+  "NewGuinea": 0,
+  "Indonesia": 2,
+  "WestAustralia": 2,
+  "EastAustralia": 2
+}
