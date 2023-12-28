@@ -5,6 +5,8 @@ public enum SetupMessageENUM {
     CREATE_OR_JOIN,
     CHOSEN_LOBBY,
     READY_HOST,
+    READY_GUEST
+
 
 
 }

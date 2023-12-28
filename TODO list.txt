@@ -25,12 +25,17 @@ TODO:
 	-------------------------------------------------------------------------------
 SERVER
 -fare funzione di registrazione dei nomi (in clientHandler)				DONE
--sistemare il loop sbagliato sull'input quando è sbagliato 
+-sistemare il loop sbagliato sull'input quando è sbagliato 				DONE
 -sistemare no serializable exception nell'invio di ListOfLobbies			DONE
 -completare setup (prima delle ready) e testare
+-refactor del flow di creazione del match e delle dipendenze dal server
+-
 
 -lightView tutta da fare
 -rispondere al messaggio del nome
+-fare try di deploying usando le istruzioni prese online
+
+
 
 
 
@@ -43,3 +48,8 @@ NOTES:
 -quando avrò quasi finito devo mergiare i checkAttack and checkAttackDefend
 -un domani potrò aggiungere la possibilità di sospendere il match (e crearne uno nuovo in un'altra modalità (cioè creando o joinando) 	)->PER ORA UNA VOLTA SCELTO CREATE O JOIN RIMANGO
 BLOCCATO Lì e DEVO PER FORZA ANDARE AVANTI COSì
+
+
+
+
+

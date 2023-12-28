@@ -2,16 +2,10 @@ package Client.CLI;
 
 import Client.ClientInterface;
 import Client.Messages.SerializedMessage;
-import Client.Messages.SetupMessages.ChosenLobby;
-import Client.Messages.SetupMessages.CreateOrJoinMessage;
-import Client.Messages.SetupMessages.ReadyHost;
-import Client.Messages.SetupMessages.SetupName;
+import Client.Messages.SetupMessages.*;
 import Server.Answer.Action.ActionAnswer;
 import Server.Answer.SerializedAnswer;
-import Server.Answer.Setup.ListOfLobbies;
-import Server.Answer.Setup.SetupAnswer;
-import Server.Answer.Setup.SetupAnswerENUM;
-import Server.Answer.Setup.UpdateListPlayers;
+import Server.Answer.Setup.*;
 import Server.Match;
 
 import java.io.IOException;
@@ -147,6 +141,7 @@ public class ClientCLI implements ClientInterface {
                     serverConnection.sendMessage(new SerializedMessage(new ReadyHost()));
                 }else {
                     System.out.println("I will ask you only when a player will leave or join");
+                    //TODO mettere messaggio uscita
                 }
                 break;
 
@@ -154,11 +149,20 @@ public class ClientCLI implements ClientInterface {
                 System.out.println("Guest, are you ready? [Yes,No]");
                 String choice2=scanner.nextLine();
                 if (choice2.equals("Yes") || choice2.equals("YES") || choice2.equals("yes") || choice2.equals("y")) {
-//                    serverConnection.sendMessage(new SerializedMessage(new ReadyGuest()));
+                    serverConnection.sendMessage(new SerializedMessage(new ReadyReplyFromGuest()));
                 }else {
                     System.out.println("I will ask you only when a player will leave or join");
+                    //todo mettere messaggio uscita e killare il proc
                 }
                 break;
+
+            case UPDATE_READY_PLAYERS:
+                System.out.println(( (UpdateReadyPlayers) answer).getList());
+                break;
+
+            case DISCONNECT:
+                System.out.println(( (Disconnect) answer).getMessage());
+                System.exit(0);
         }
     }
 

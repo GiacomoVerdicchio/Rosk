@@ -3,23 +3,18 @@ package Server;
 import Client.CLI.Printer;
 import Client.Messages.ActionMessages.ActionMessage;
 import Client.Messages.SerializedMessage;
-import Client.Messages.SetupMessages.ChosenLobby;
-import Client.Messages.SetupMessages.CreateOrJoinMessage;
-import Client.Messages.SetupMessages.SetupMessage;
-import Client.Messages.SetupMessages.SetupName;
+import Client.Messages.SetupMessages.*;
 import Controller.Controller;
 import Observer.Observer;
 import Server.Answer.SerializedAnswer;
-import Server.Answer.Setup.ListOfLobbies;
-import Server.Answer.Setup.ReadyNeedGuest;
-import Server.Answer.Setup.StartReadyPhase;
-import Server.Answer.Setup.UpdateListPlayers;
+import Server.Answer.Setup.*;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.stream.Collectors;
+
 
 public class CHandler extends Thread implements Observer
 {
@@ -31,37 +26,55 @@ public class CHandler extends Thread implements Observer
     private Match currentMatch;
     private boolean isHost;
 
-
+    private boolean isAlive=true;
 
     public CHandler(Socket clientConnection) throws IOException {
         ClientConnection connection = new ClientConnection(clientConnection);
         this.clientConnection = connection;
         nickname="";
         isHost = false;
-
-        //voglio implementarlo nel match    this.ready = false;
     }
-
-
 
 
     @Override
     public void run()
     {
-
-        while(isAlive())
+        while(isAlive)
+            //while(isAlive())
         {
             if(connected)
-            {
                 readMessage();
+            else {
+                isAlive=false;
+                try {
+                    handlingClosingConnection();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
-            else
-            {
-                //TODO
-            }
-
         }
     }
+
+    private void handlingClosingConnection() throws InterruptedException {
+        if(currentMatch!=null)
+        {
+            if(currentMatch.isGameStarted() || this.isHost)
+            {
+                System.out.println("MATCH DEL CL "+ currentMatch);
+                Disconnect disconnect = new Disconnect("You where disconnected because a client (or the host) exit the game");
+                for(CHandler c: currentMatch.getClients())
+                    c.clientConnection.sendAnswer(new SerializedAnswer(disconnect));
+                currentMatch.end();
+            }
+            else {
+                if(currentMatch.getClients().contains(this))
+                    currentMatch.getClients().remove(this);
+            }
+        }
+        //Thread.currentThread().wait(100000);
+        Thread.currentThread().interrupt();
+    }
+
     /**
      * Method readMessage reads messages coming from the client and redirects them to the correct handler
      */
@@ -84,10 +97,6 @@ public class CHandler extends Thread implements Observer
         catch (IOException e)
         {
             System.out.println(nickname + " disconnected");
-            if(currentMatch.getClients().contains(this))
-                currentMatch.getClients().remove(this);
-            if(isHost)
-                serverReference.killMatch(currentMatch);
             connected = false;
         }
         catch(ClassNotFoundException e)
@@ -112,32 +121,33 @@ public class CHandler extends Thread implements Observer
             switch(message.type)
             {
                 case SETUP_NAME :
-                    System.out.println("Entrati nel setupName del server");
+                    System.out.println();
                     nickname = ((SetupName)message).getNickname();
                     break;
 
                 case CREATE_OR_JOIN:
-                    System.out.println("Entrati nel CreateOrJoin del server");
                     boolean create = ((CreateOrJoinMessage)message).isCreateTrue();
                     if(create)
                     {
                         int numPlayersDesired=((CreateOrJoinMessage)message).getNum();
                         currentMatch=serverReference.createNewMatch(numPlayersDesired, this);
-                        isHost=true;
-                        System.out.println("Created a game with players, nick:"+ nickname);
+                        System.out.println("Created a game with players, nick:"+ nickname+" in match : "+ currentMatch);
                     }
                     else {
-                        //allora mando la lista delle lobby (chiedendola al server) e aspetto che mi risponda,
-                        // (quando otterrò la risposta allora chiamo il serverReference e gli aggiungo questa istanza al match
-                        //  e mando un messaggio all'host per dire che ha joinato un altro partecipante (con attributo nome)???)
-                        ListOfLobbies listOfLobbies=new ListOfLobbies(
+                        ListOfLobbies listOfLobbies;
+                        if(serverReference.getMatches().size()!=0)
+                            listOfLobbies = new ListOfLobbies(
                                 (ArrayList<String>) Printer.printListLobbySetup(serverReference.getMatches()),
-                                serverReference.getMatches().stream().map(t->t.getMatchId()).sorted(Comparator.reverseOrder()).findFirst().get());
+                                serverReference.getMatches().stream().map(t->t.getMatchId())
+                                        .sorted(Comparator.reverseOrder()).findFirst().get());
+                        else  {
+                            listOfLobbies =new ListOfLobbies(new ArrayList<>(),0);
+                        }
                         clientConnection.sendAnswer(new SerializedAnswer(listOfLobbies));
                     }
                     break;
 
-                //case della risposta tra le lobby
+
                 case CHOSEN_LOBBY:
                     int idLobbyChosen = ((ChosenLobby)message).getId();
                     currentMatch = serverReference.addPersonToAMatch(idLobbyChosen, this);
@@ -145,7 +155,8 @@ public class CHandler extends Thread implements Observer
                     for(CHandler c : currentMatch.getClients())
                     {
                         UpdateListPlayers listOfPlayersInThisMatch=new UpdateListPlayers
-                                ((ArrayList<String>) currentMatch.getClients().stream().map(t->t.nickname).collect(Collectors.toList()));
+                                ((ArrayList<String>) currentMatch.getClients().stream().map(t->t.nickname)
+                                        .collect(Collectors.toList()));
                         c.clientConnection.sendAnswer(new SerializedAnswer(listOfPlayersInThisMatch));
                     }
                     if(currentMatch.getClients().size() == currentMatch.getNumPlayersDesired())
@@ -153,18 +164,31 @@ public class CHandler extends Thread implements Observer
                         currentMatch.getClients().stream().filter(t->t.isHost).findFirst()
                                 .get().getClientConnection().sendAnswer(new SerializedAnswer(new StartReadyPhase()));
                     }
-                    System.out.println("Finished CHOSEN LOBBY");
+                    System.out.println("Added a player: "+ nickname+" in match : "+ currentMatch);
                     break;
 
                 case READY_HOST:
                         currentMatch.putReady(this);
-                        currentMatch.getClients().stream()
-                                .forEach(x->x.getClientConnection().sendAnswer(new SerializedAnswer(new ReadyNeedGuest())));
+                        currentMatch.setGameStarted(true);
+                        currentMatch.getClients().stream().filter(x->! x.clientConnection.equals(this.clientConnection))
+                                .forEach(x->x.getClientConnection().sendAnswer(new SerializedAnswer(new ReadyRequestFromHost())));
                     break;
-                /*
+
                 case READY_GUEST:
+                    System.out.println("Guest ready: "+getNickname());
+                    currentMatch.putReady(this);
+
+
+                    ArrayList<String> listReadyToString=new ArrayList<String>();
+                    for(CHandler c: currentMatch.getReady().keySet())
+                    {
+                        listReadyToString.add(c.nickname+": "+currentMatch.getReady().get(c));
+                    }
+
+                    currentMatch.getClients().stream()
+                            .forEach(x->x.getClientConnection().sendAnswer(new SerializedAnswer(new UpdateReadyPlayers(listReadyToString))));
                     break;
-                 */
+
 
             }
         else
@@ -200,7 +224,9 @@ public class CHandler extends Thread implements Observer
         System.out.println(message);
         // socket.sendAnswer(new SerializedAnswer(new ViewMessage(message, mainController.getGame().getCurrentCharacterDeck(), mainController.getGame().getCurrentActiveCharacterCard(), mainController.isExpertGame())));
     }
-
+    public void setHost(boolean host) {
+        isHost = host;
+    }
     public String getNickname() {
         return nickname;
     }

@@ -31,31 +31,32 @@ public class Server  {
                 CHandler cHandler = new CHandler(socket);
                 cHandler.setServerReference(this);
                 cHandler.start();
-                System.out.println("New Connection registered!\n");
+                System.out.println("New Connection registered!");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    public void killMatch(Match match){
-        if(matches.contains(match))
-            matches.remove(match);
-        //TODO deveo anche andare a chiudere tutti i client (mandando il
-        // disconnect message
-    }
+
 
     public Match createNewMatch(int num, CHandler cHandler) throws IOException {
-        Match m = new Match(matches.size(), num);
+        Match m = new Match(matches.size(), num, this);
         m.addClient(cHandler);
         matches.add(m);
+        cHandler.setHost(true);
         return m;
     }
     public Match addPersonToAMatch(int idMatch, CHandler cHandler) throws IOException {
 
         Match m=matches.stream().filter(t->t.getMatchId() == idMatch).findFirst().orElse(null);
         m.addClient(cHandler);
+        if(m.getClients().size() == 0) cHandler.setHost(true);
         return m;
+    }
+    public void removeMatch(Match match){
+        if(matches.contains(match))
+            matches.remove(match);
     }
     public ArrayList<Match> getMatches() {
         return (ArrayList<Match>) matches.clone();

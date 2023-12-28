@@ -6,4 +6,9 @@ public enum SetupAnswerENUM {
     UPDATE_LIST_PLAYERS,
     START_READY_PHASE,
     READY_NEED_GUEST,
+    UPDATE_READY_PLAYERS,
+
+
+    DISCONNECT,
+
 }

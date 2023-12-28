@@ -1,8 +1,8 @@
 package Server.Answer.Setup;
 
-public class ReadyNeedGuest extends SetupAnswer{
+public class ReadyRequestFromHost extends SetupAnswer{
 
-    public ReadyNeedGuest()
+    public ReadyRequestFromHost()
     {
         super.type = SetupAnswerENUM.READY_NEED_GUEST;
     }
