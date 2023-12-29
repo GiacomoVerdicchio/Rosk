@@ -214,7 +214,7 @@ public class TestGame {
         assertTrue(controller.updateTurnPhase(3));//to io fortify(reloop again)
 
         if(!win) {
-            ArrayList<Nation> remNat = (ArrayList<Nation>) controller.getCurrentGame().getMapWorld().getNations().stream().filter(t -> t.getIdOwner() == 0).toList();
+            ArrayList<Nation> remNat = (ArrayList<Nation>) controller.getCurrentGame().getMapWorld().getNations().stream().filter(t -> t.getIdOwner() == 0).collect(Collectors.toList());
             assertTrue(controller.getCurrentGame().getMapWorld().getNations().stream().anyMatch(t -> t.getIdOwner() == 0));
 
         }
@@ -256,8 +256,8 @@ public class TestGame {
         }
 
 
-        ArrayList<Nation> remNat = (ArrayList<Nation>) controller.getCurrentGame().getMapWorld().getNations().stream().filter(t -> t.getIdOwner() == 0).toList();
-        assertTrue(controller.getCurrentGame().getMapWorld().getNations().stream().noneMatch(t -> t.getIdOwner() == 0));
+        ArrayList<Nation> remNat = (ArrayList<Nation>) controller.getCurrentGame().getMapWorld().getNations().stream().filter(t -> t.getIdOwner() == 0).collect(Collectors.toList());
+        assertTrue( ! controller.getCurrentGame().getMapWorld().getNations().stream().anyMatch(t -> t.getIdOwner() == 0));
         assertFalse(controller.getCurrentGame().getPlayers().get(0).isAlive());
         assertEquals(7, controller.getCurrentGame().getPlayers().get(idChiara).getTerritoryCardsOwned().size());
         assertEquals(0, controller.getCurrentGame().getPlayers().get(idIo).getTerritoryCardsOwned().size());
