@@ -4,6 +4,8 @@ import Client.LightView.LightView;
 import Server.Answer.Action.ActionAnswer;
 import Server.Answer.Setup.SetupAnswer;
 
+import java.io.IOException;
+
 public interface ClientInterface {
 
         //TODO
@@ -13,7 +15,7 @@ public interface ClientInterface {
 
         void readMessage();
 
-        void setupHandler(SetupAnswer answer);
+        void setupHandler(SetupAnswer answer) throws IOException;
 
         void messageHandler(ActionAnswer answer);
 }

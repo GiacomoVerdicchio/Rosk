@@ -19,9 +19,7 @@ public class Server  {
 
     public void run() throws IOException
     {
-
         System.out.println("Server Started!");
-
         while (true) {
             try {
 
@@ -31,7 +29,7 @@ public class Server  {
                 CHandler cHandler = new CHandler(socket);
                 cHandler.setServerReference(this);
                 cHandler.start();
-                System.out.println("New Connection registered!");
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

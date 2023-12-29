@@ -7,6 +7,7 @@ public enum SetupAnswerENUM {
     START_READY_PHASE,
     READY_NEED_GUEST,
     UPDATE_READY_PLAYERS,
+    START_GAME,
 
 
     DISCONNECT,

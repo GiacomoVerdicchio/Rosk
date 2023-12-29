@@ -27,10 +27,16 @@ SERVER
 -fare funzione di registrazione dei nomi (in clientHandler)				DONE
 -sistemare il loop sbagliato sull'input quando è sbagliato 				DONE
 -sistemare no serializable exception nell'invio di ListOfLobbies			DONE
--completare setup (prima delle ready) e testare
+-come gestire il fatto che se l'host si sconnette ma game non ancora iniziato allora 	DONE
+	deadlock
+-completare setup (prima delle ready) e testare						
 -refactor del flow di creazione del match e delle dipendenze dal server
--
 
+
+-vedere se il controller è serializable
+
+-proteggere sezione di input (in modo da non usare le stringhe dove ci vorrebbe un
+	int che se no crasha tutto)
 -lightView tutta da fare
 -rispondere al messaggio del nome
 -fare try di deploying usando le istruzioni prese online

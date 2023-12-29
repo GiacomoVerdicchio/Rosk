@@ -35,48 +35,60 @@ public class ClientCLI implements ClientInterface {
             throw new RuntimeException(e);
         }
 
-
         System.out.println("Nickname?");
         String nickname = scanner.nextLine();
         serverConnection.sendMessage(new SerializedMessage(new SetupName(nickname)));
 
-        boolean loop=false;
+        boolean loopExit=false;
+        String choiceInInput;
+        int numInInput;
         do {
-            loop = false;
-            String choice="";
+            loopExit = false;
+            scanner=new Scanner(System.in);
             System.out.println("Do you want to create a match? (Otherwise you will join one)  [Yes,No]");
-            choice=scanner.nextLine();
-            if (choice.equals("Yes") || choice.equals("YES") || choice.equals("yes") || choice.equals("y"))
+            choiceInInput=scanner.nextLine();
+            if (choiceInInput.toLowerCase().equals("yes") || choiceInInput.equals("y"))
             {
-                int num;
                 do {
                     System.out.println("Specify how many players do you want?  [Between 3 and 6]");
-                    num= scanner.nextInt();
-                }while (num<3 || num>6);
-                serverConnection.sendMessage(new SerializedMessage(new CreateOrJoinMessage(true, num)));
+                    while (!scanner.hasNextInt()) {
+                        System.out.println("Invalid input. Please enter a valid number.");
+                        scanner.next();
+                    }
+                    numInInput= scanner.nextInt();
+                }while (numInInput<3 || numInInput>6);
+                serverConnection.sendMessage(new SerializedMessage(new CreateOrJoinMessage(true, numInInput)));
             }
-            else if (choice.equals("No") || choice.equals("NO") || choice.equals("no") || choice.equals("n")) {
+
+            else if (choiceInInput.toLowerCase().equals("no") || choiceInInput.equals("n"))
+            {
                 serverConnection.sendMessage(new SerializedMessage(new CreateOrJoinMessage(false)));
                 try {
                     SetupAnswer answer = ((SerializedAnswer) serverConnection.getIn().readObject()).getCommand();
+
                     if(answer.type== SetupAnswerENUM.LIST_LOBBIES)
                     {
                         ArrayList<String> listOfLobbies=((ListOfLobbies) answer).getList();
                         System.out.println(listOfLobbies);
                         System.out.println("Choose the id lobby where to join ? [-1 to exit]");
-                        int num = scanner.nextInt();
-                        if(num>=0 && ((ListOfLobbies) answer).getMaxMatchId() <=num ) {
-                            serverConnection.sendMessage(new SerializedMessage(new ChosenLobby( num)));
+                        while (!scanner.hasNextInt()) {
+                            System.out.println("Invalid input. Please enter a valid number.");
+                            scanner.next();
                         }
-                        else loop=true;
+                        numInInput = scanner.nextInt();
+                        if(numInInput>=0 && ((ListOfLobbies) answer).getMaxMatchId() <=numInInput ) {
+                            serverConnection.sendMessage(new SerializedMessage(new ChosenLobby( numInInput)));
+                        }
+                        else loopExit=true;
                     }
-                    else loop=true;
+
+                    else loopExit=true;
                 } catch (IOException | ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
             }
-            else {loop = true; scanner.nextLine(); }
-        }while (loop);
+            else {loopExit = true;}
+        }while (loopExit);
 
         ListenerCLI Listener = new ListenerCLI(this);
         //this.stdin = new InputParser(main, MyView);
@@ -119,9 +131,8 @@ public class ClientCLI implements ClientInterface {
     }
 
 
-    //TODO insert all the setup messages
     @Override
-    public void setupHandler(SetupAnswer answer){
+    public void setupHandler(SetupAnswer answer) throws IOException {
         scanner=new Scanner(System.in);
         switch(answer.getType())
         {
@@ -158,6 +169,11 @@ public class ClientCLI implements ClientInterface {
 
             case UPDATE_READY_PLAYERS:
                 System.out.println(( (UpdateReadyPlayers) answer).getList());
+                break;
+
+            case START_GAME:
+                Printer.cls();
+                System.out.println("Il gioco sta iniziando!");
                 break;
 
             case DISCONNECT:

@@ -13,7 +13,6 @@ public class Match {
     private Controller controller;
     private int numPlayersDesired;
     private ArrayList<CHandler> clients = new ArrayList<>();
-    private Server serverReference;
     private ExecutorService clientPinger = Executors.newFixedThreadPool(128);
     private HashMap<CHandler,Boolean> ready;
     private boolean gameStarted;
@@ -24,7 +23,6 @@ public class Match {
         this.numPlayersDesired =numPlayersDesired;
         this.ready = new HashMap<CHandler,Boolean>();
         this.gameStarted=false;
-        this.serverReference=s;
     }
 
 
@@ -48,9 +46,10 @@ public class Match {
     }
 
 
-    public void end()
+    public void endingConnection()
     {
-        serverReference.removeMatch(this);
+        Server s=clients.get(0).getServerReference();
+        s.removeMatch(this);
         for(CHandler cH: this.getClients()){
             cH.interrupt();
         }

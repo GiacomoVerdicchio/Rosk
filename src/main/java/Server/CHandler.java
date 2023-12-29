@@ -36,43 +36,38 @@ public class CHandler extends Thread implements Observer
     }
 
 
-    @Override
-    public void run()
-    {
-        while(isAlive)
-            //while(isAlive())
-        {
-            if(connected)
-                readMessage();
-            else {
-                isAlive=false;
-                try {
-                    handlingClosingConnection();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
-
-    private void handlingClosingConnection() throws InterruptedException {
+    private void handlingClosingConnection(){
         if(currentMatch!=null)
         {
             if(currentMatch.isGameStarted() || this.isHost)
             {
-                System.out.println("MATCH DEL CL "+ currentMatch);
                 Disconnect disconnect = new Disconnect("You where disconnected because a client (or the host) exit the game");
                 for(CHandler c: currentMatch.getClients())
                     c.clientConnection.sendAnswer(new SerializedAnswer(disconnect));
-                currentMatch.end();
+                currentMatch.endingConnection();
             }
             else {
                 if(currentMatch.getClients().contains(this))
                     currentMatch.getClients().remove(this);
             }
         }
-        //Thread.currentThread().wait(100000);
-        Thread.currentThread().interrupt();
+        this.interrupt();
+    }
+
+    @Override
+    public void run()
+    {
+        while(isAlive)
+        //while(isAlive())
+        {
+            if(connected)
+                readMessage();
+            else
+            {
+                isAlive=false;
+                handlingClosingConnection();
+            }
+        }
     }
 
     /**
@@ -121,7 +116,6 @@ public class CHandler extends Thread implements Observer
             switch(message.type)
             {
                 case SETUP_NAME :
-                    System.out.println();
                     nickname = ((SetupName)message).getNickname();
                     break;
 
@@ -131,7 +125,8 @@ public class CHandler extends Thread implements Observer
                     {
                         int numPlayersDesired=((CreateOrJoinMessage)message).getNum();
                         currentMatch=serverReference.createNewMatch(numPlayersDesired, this);
-                        System.out.println("Created a game with players, nick:"+ nickname+" in match : "+ currentMatch);
+                        System.out.println("Created a game with players: "+ nickname+" in match : "+ currentMatch);
+                        System.out.println();
                     }
                     else {
                         ListOfLobbies listOfLobbies;
@@ -159,12 +154,13 @@ public class CHandler extends Thread implements Observer
                                         .collect(Collectors.toList()));
                         c.clientConnection.sendAnswer(new SerializedAnswer(listOfPlayersInThisMatch));
                     }
+                    System.out.println("Added a player: "+ nickname+" in match : "+ currentMatch);
+                    System.out.println();
                     if(currentMatch.getClients().size() == currentMatch.getNumPlayersDesired())
                     {
                         currentMatch.getClients().stream().filter(t->t.isHost).findFirst()
                                 .get().getClientConnection().sendAnswer(new SerializedAnswer(new StartReadyPhase()));
                     }
-                    System.out.println("Added a player: "+ nickname+" in match : "+ currentMatch);
                     break;
 
                 case READY_HOST:
@@ -176,20 +172,30 @@ public class CHandler extends Thread implements Observer
 
                 case READY_GUEST:
                     System.out.println("Guest ready: "+getNickname());
+                    boolean allReady = true;
                     currentMatch.putReady(this);
-
 
                     ArrayList<String> listReadyToString=new ArrayList<String>();
                     for(CHandler c: currentMatch.getReady().keySet())
                     {
                         listReadyToString.add(c.nickname+": "+currentMatch.getReady().get(c));
                     }
-
                     currentMatch.getClients().stream()
                             .forEach(x->x.getClientConnection().sendAnswer(new SerializedAnswer(new UpdateReadyPlayers(listReadyToString))));
+
+                    for(CHandler c: currentMatch.getReady().keySet())
+                    {
+                        if(! currentMatch.getReady().get(c))
+                            allReady=false;
+                    }
+                    if(!allReady)
+                        System.out.println("allready false");
+                    if(allReady) {
+                        System.out.println("allready true");
+                        currentMatch.getClients().stream()
+                                .forEach(x -> x.getClientConnection().sendAnswer(new SerializedAnswer(new StartGame())));
+                    }
                     break;
-
-
             }
         else
         {
@@ -236,6 +242,9 @@ public class CHandler extends Thread implements Observer
     public ClientConnection getClientConnection()
     {
         return clientConnection;
+    }
+    public Server getServerReference() {
+        return serverReference;
     }
     public void setServerReference(Server serverReference) {
         this.serverReference = serverReference;
