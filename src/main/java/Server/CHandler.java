@@ -4,8 +4,8 @@ import Client.CLI.Printer;
 import Client.Messages.ActionMessages.ActionMessage;
 import Client.Messages.SerializedMessage;
 import Client.Messages.SetupMessages.*;
-import Controller.Controller;
 import Observer.Observer;
+import Server.Answer.Action.ErrorMessage;
 import Server.Answer.SerializedAnswer;
 import Server.Answer.Setup.*;
 
@@ -22,9 +22,9 @@ public class CHandler extends Thread implements Observer
     private ClientConnection clientConnection;
     private boolean connected = true;
     private String nickname;
-    private Controller controller;
     private Match currentMatch;
     private boolean isHost;
+    private boolean isSetupFinished;
 
     private boolean isAlive=true;
 
@@ -33,6 +33,7 @@ public class CHandler extends Thread implements Observer
         this.clientConnection = connection;
         nickname="";
         isHost = false;
+        isSetupFinished = false;
     }
 
 
@@ -111,9 +112,8 @@ public class CHandler extends Thread implements Observer
      */
     public void setupHandler(SetupMessage message) throws IOException
     {
-        //controller.gamePhase is setup
-        if( true)
-            switch(message.type)
+        if( ! isSetupFinished)
+            switch(message.getType())
             {
                 case SETUP_NAME :
                     nickname = ((SetupName)message).getNickname();
@@ -175,31 +175,31 @@ public class CHandler extends Thread implements Observer
                     boolean allReady = true;
                     currentMatch.putReady(this);
 
-                    ArrayList<String> listReadyToString=new ArrayList<String>();
+                    ArrayList<String> listReadyToString= new ArrayList<>();
                     for(CHandler c: currentMatch.getReady().keySet())
                     {
                         listReadyToString.add(c.nickname+": "+currentMatch.getReady().get(c));
                     }
-                    currentMatch.getClients().stream()
+                    currentMatch.getClients()
                             .forEach(x->x.getClientConnection().sendAnswer(new SerializedAnswer(new UpdateReadyPlayers(listReadyToString))));
 
+                    //if all players are ready then we can start the game
                     for(CHandler c: currentMatch.getReady().keySet())
                     {
                         if(! currentMatch.getReady().get(c))
                             allReady=false;
                     }
-                    if(!allReady)
-                        System.out.println("allready false");
                     if(allReady) {
-                        System.out.println("allready true");
-                        currentMatch.getClients().stream()
+                        currentMatch.getClients()
                                 .forEach(x -> x.getClientConnection().sendAnswer(new SerializedAnswer(new StartGame())));
+                        //TODO finish the general setup before starting the loop
+                        isSetupFinished=true;
                     }
                     break;
             }
         else
         {
-            //socket.sendAnswer(new SerializedAnswer(new ErrorMessage(ERRORTYPES.WRONG_PHASE)));
+            clientConnection.sendAnswer(new SerializedAnswer(new ErrorMessage("ERRORTYPES.WRONG_PHASE for this message "+ message.getType())));
         }
 
     }
@@ -235,9 +235,6 @@ public class CHandler extends Thread implements Observer
     }
     public String getNickname() {
         return nickname;
-    }
-    public boolean isHost() {
-        return isHost;
     }
     public ClientConnection getClientConnection()
     {

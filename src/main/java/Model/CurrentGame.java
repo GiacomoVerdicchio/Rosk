@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class CurrentGame {
-    MapWorld mapWorld;
-    ArrayList<Player> players;
-    ArrayList<TerritoryCard> territoriesDeck;
-    ArrayList<TerritoryCard> territoriesRemainingDeck;
-    ArrayList<ObjectiveCards> objectiveCards;
+    private MapWorld mapWorld;
+    private ArrayList<Player> players;
+    private ArrayList<TerritoryCard> territoriesDeck;
+    private ArrayList<TerritoryCard> territoriesRemainingDeck;
+    private ArrayList<ObjectiveCards> objectiveCards;
 
 
     public CurrentGame() {

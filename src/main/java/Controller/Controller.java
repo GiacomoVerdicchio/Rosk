@@ -117,14 +117,14 @@ public class Controller {
         if(turnPhases.get(currentPlayerActing) != PhaseTurn.fortify) return false;
 
         Nation n=currentGame.getMapWorld().getNation(nationToDeployTroops);
-        if( ! Checks.checkForAddTroopsToFortify(n,numOfTroops,idOwner, actionController.getTroopsYetToBeDeployed())) return false;;
+        if( ! Checks.checkForAddTroopsToFortify(n,numOfTroops,idOwner, actionController.getTroopsYetToBeDeployed())) return false;
         n.addTroops(numOfTroops);
         actionController.removeTroopsYetToBeDeployed(numOfTroops);
 
         return true;
     }
 
-    public boolean attack(Nation start,Nation target, int attackTroops,int  defendTroops)
+    public boolean attack(Nation start,Nation target, int attackTroops,int  defendTroops) throws RuntimeException
     {
         if(! Checks.checkForMaxTroopsNumber(start,target,attackTroops,defendTroops)) throw new RuntimeException();
         if(! Checks.checkForAttackAndDefend(start,target,attackTroops,defendTroops , gamePhase, turnPhases)) throw new RuntimeException();
@@ -132,7 +132,7 @@ public class Controller {
         Player p =currentGame.getPlayers().get(target.getIdOwner());
         boolean res= actionController.computeAttack(start,target,attackTroops,defendTroops);
 
-        if(res && ! currentGame.getMapWorld().getNations().stream().anyMatch(t-> t.getIdOwner()== p.getIdPlayer()) )
+        if(res && currentGame.getMapWorld().getNations().stream().noneMatch(t-> t.getIdOwner()== p.getIdPlayer()))
         {
             aPlayerDied(p);
         }

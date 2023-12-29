@@ -9,26 +9,26 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Match {
-    private int matchId;
+    private final int matchId;
     private Controller controller;
-    private int numPlayersDesired;
+    private final int numPlayersDesired;
     private ArrayList<CHandler> clients = new ArrayList<>();
-    private ExecutorService clientPinger = Executors.newFixedThreadPool(128);
+    private final ExecutorService clientPinger = Executors.newFixedThreadPool(128);
     private HashMap<CHandler,Boolean> ready;
     private boolean gameStarted;
 
-    public Match(int matchId, int numPlayersDesired, Server s) {
+    public Match(int matchId, int numPlayersDesired) {
         this.matchId = matchId;
         this.controller=new Controller();
         this.numPlayersDesired =numPlayersDesired;
-        this.ready = new HashMap<CHandler,Boolean>();
+        this.ready = new HashMap<>();
         this.gameStarted=false;
     }
 
 
 
 
-    public void addClient(CHandler cHandler) throws IOException {
+    public void addClient(CHandler cHandler) {
         clients.add(cHandler);
         clientPinger.execute(new ClientPinger(cHandler));
     }
@@ -54,6 +54,7 @@ public class Match {
             cH.interrupt();
         }
     }
+
     public ArrayList<CHandler> getClients() {
         return clients;
     }
@@ -72,7 +73,6 @@ public class Match {
     public boolean isGameStarted() {
         return gameStarted;
     }
-
     public HashMap<CHandler, Boolean> getReady() {
         return ready;
     }

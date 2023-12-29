@@ -29,25 +29,24 @@ SERVER
 -sistemare no serializable exception nell'invio di ListOfLobbies			DONE
 -come gestire il fatto che se l'host si sconnette ma game non ancora iniziato allora 	DONE
 	deadlock
--completare setup (prima delle ready) e testare						
--refactor del flow di creazione del match e delle dipendenze dal server
+-completare setup (prima delle ready) e testare						DONE	
+-refactor del flow di creazione del match e delle dipendenze dal server			DONE 
 
 
--vedere se il controller è serializable
+-vedere se il controller è serializable						
 
--proteggere sezione di input (in modo da non usare le stringhe dove ci vorrebbe un
+-proteggere sezione di input (in modo da non usare le stringhe dove ci vorrebbe un	DONE
 	int che se no crasha tutto)
+
 -lightView tutta da fare
 -rispondere al messaggio del nome
+-creazione basic parser
+-capire quali messaggi andranno letti (dal client handler)
+
+
+
+
 -fare try di deploying usando le istruzioni prese online
-
-
-
-
-
-
-
-
 
 NOTES:
 -carte obbiettivo non ancora modellate --> si potrebbe 

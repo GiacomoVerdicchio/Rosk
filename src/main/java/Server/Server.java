@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class Server  {
 
     private static final int PORT = 2509;
-    private ServerSocket server;
+    private final ServerSocket server;
     private ArrayList<Match> matches ;
 
     public Server() throws IOException
@@ -38,23 +38,24 @@ public class Server  {
 
 
 
-    public Match createNewMatch(int num, CHandler cHandler) throws IOException {
-        Match m = new Match(matches.size(), num, this);
+    public Match createNewMatch(int num, CHandler cHandler) {
+        Match m = new Match(matches.size(), num);
         m.addClient(cHandler);
         matches.add(m);
         cHandler.setHost(true);
         return m;
     }
-    public Match addPersonToAMatch(int idMatch, CHandler cHandler) throws IOException {
+    public Match addPersonToAMatch(int idMatch, CHandler cHandler) {
 
         Match m=matches.stream().filter(t->t.getMatchId() == idMatch).findFirst().orElse(null);
-        m.addClient(cHandler);
-        if(m.getClients().size() == 0) cHandler.setHost(true);
+        if(m!=null) {
+            m.addClient(cHandler);
+            if (m.getClients().size() == 0) cHandler.setHost(true);
+        }
         return m;
     }
     public void removeMatch(Match match){
-        if(matches.contains(match))
-            matches.remove(match);
+        matches.remove(match);
     }
     public ArrayList<Match> getMatches() {
         return (ArrayList<Match>) matches.clone();

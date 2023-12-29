@@ -166,7 +166,7 @@ public class TestGame {
         ale.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         ale.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         ale.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        controller.addTroopsUsingTerritoryCards(0,1,2,2);
+        assertTrue(controller.addTroopsUsingTerritoryCards(0,1,2,2));
         assertEquals(4,controller.getActionController().getTroopsYetToBeDeployed() );
 
 
@@ -214,7 +214,7 @@ public class TestGame {
         assertTrue(controller.updateTurnPhase(3));//to io fortify(reloop again)
 
         if(!win) {
-            ArrayList<Nation> remNat = (ArrayList<Nation>) controller.getCurrentGame().getMapWorld().getNations().stream().filter(t -> t.getIdOwner() == 0).collect(Collectors.toList());
+            ArrayList<Nation> remNat = (ArrayList<Nation>) controller.getCurrentGame().getMapWorld().getNations().stream().filter(t -> t.getIdOwner() == 0).toList();
             assertTrue(controller.getCurrentGame().getMapWorld().getNations().stream().anyMatch(t -> t.getIdOwner() == 0));
 
         }
@@ -256,14 +256,14 @@ public class TestGame {
         }
 
 
-        ArrayList<Nation> remNat = (ArrayList<Nation>) controller.getCurrentGame().getMapWorld().getNations().stream().filter(t -> t.getIdOwner() == 0).collect(Collectors.toList());
-        assertTrue( ! controller.getCurrentGame().getMapWorld().getNations().stream().anyMatch(t -> t.getIdOwner() == 0));
+        ArrayList<Nation> remNat = (ArrayList<Nation>) controller.getCurrentGame().getMapWorld().getNations().stream().filter(t -> t.getIdOwner() == 0).toList();
+        assertTrue(controller.getCurrentGame().getMapWorld().getNations().stream().noneMatch(t -> t.getIdOwner() == 0));
         assertFalse(controller.getCurrentGame().getPlayers().get(0).isAlive());
         assertEquals(7, controller.getCurrentGame().getPlayers().get(idChiara).getTerritoryCardsOwned().size());
         assertEquals(0, controller.getCurrentGame().getPlayers().get(idIo).getTerritoryCardsOwned().size());
         assertEquals(PhaseTurn.fortify, controller.getPhase(idChiara));
         assertFalse(controller.updateTurnPhase(idChiara));
-        controller.addTroopsUsingTerritoryCards(0,1,4,1);
+        assertTrue(controller.addTroopsUsingTerritoryCards(0,1,4,1));
         controller.addTroopsToFortify(NationsName.Venezuela,4,1);
         assertTrue(controller.updateTurnPhase(idChiara));
 
