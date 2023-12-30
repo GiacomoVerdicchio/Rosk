@@ -152,7 +152,20 @@ public class TestActionController {
         boolean res= controller.attack(     controller.getCurrentGame().getMapWorld().getNation(NationsName.Mongolia),
                                 controller.getCurrentGame().getMapWorld().getNation(NationsName.Japan)  , 3 ,1);
 
-        if(res ) {
+
+        if( res ) {
+
+            controller.getCurrentGame().getMapWorld().getNation(NationsName.Mongolia).addTroops(10);
+            assertFalse(controller.movementOfTroopsAfterConquer(controller.getCurrentGame().getMapWorld().getNation(NationsName.Mongolia),
+                    controller.getCurrentGame().getMapWorld().getNation(NationsName.Japan)  , 1 ,1, 3));
+            controller.getCurrentGame().getMapWorld().getNation(NationsName.Mongolia).setIdOwner(3);
+            assertFalse(controller.movementOfTroopsAfterConquer(controller.getCurrentGame().getMapWorld().getNation(NationsName.Mongolia),
+                    controller.getCurrentGame().getMapWorld().getNation(NationsName.Japan)  , 1 ,1, 3));
+            controller.getCurrentGame().getMapWorld().getNation(NationsName.Mongolia).setIdOwner(1);
+            assertTrue(controller.movementOfTroopsAfterConquer(controller.getCurrentGame().getMapWorld().getNation(NationsName.Mongolia),
+                    controller.getCurrentGame().getMapWorld().getNation(NationsName.Japan)  , 1 ,5, 3));
+
+
             TerritoryCard tExtracted;
             String player = null;
             assertEquals(43, controller.getCurrentGame().getTerritoriesRemainingDeck().size());
@@ -282,16 +295,16 @@ public class TestActionController {
         Player p=controller.getCurrentGame().getPlayers().get(0);
 
         //too high or low value    or equals
-        assertFalse(Checks.checkAreCardsPassedValid(5,4,2,p.getIdPlayer(), controller.getCurrentGame().getPlayers()));
-        assertFalse(Checks.checkAreCardsPassedValid(-123,4,2,p.getIdPlayer(), controller.getCurrentGame().getPlayers()));
-        assertFalse(Checks.checkAreCardsPassedValid(1,4,4,p.getIdPlayer(), controller.getCurrentGame().getPlayers()));
-        assertFalse(Checks.checkAreCardsPassedValid(1,3,2,-1, controller.getCurrentGame().getPlayers()));
-        assertFalse(Checks.checkAreCardsPassedValid(1,3,2,123, controller.getCurrentGame().getPlayers()));
+        assertFalse(Checks.checkAreTerritoryCardsValid(5,4,2,p.getIdPlayer(), controller.getCurrentGame().getPlayers()));
+        assertFalse(Checks.checkAreTerritoryCardsValid(-123,4,2,p.getIdPlayer(), controller.getCurrentGame().getPlayers()));
+        assertFalse(Checks.checkAreTerritoryCardsValid(1,4,4,p.getIdPlayer(), controller.getCurrentGame().getPlayers()));
+        assertFalse(Checks.checkAreTerritoryCardsValid(1,3,2,-1, controller.getCurrentGame().getPlayers()));
+        assertFalse(Checks.checkAreTerritoryCardsValid(1,3,2,123, controller.getCurrentGame().getPlayers()));
 
         p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertTrue(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        assertTrue(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
@@ -300,7 +313,7 @@ public class TestActionController {
         p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertTrue(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        assertTrue(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
@@ -309,52 +322,52 @@ public class TestActionController {
         p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertTrue(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        assertTrue(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
         assertEquals(0,p.getTerritoryCardsOwned().size());
 
         p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        p.addTerritoryCards(new TerritoryCard("Jolly",3, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertTrue(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
-        p.getTerritoryCardsOwned().remove(0);
-        p.getTerritoryCardsOwned().remove(0);
-        p.getTerritoryCardsOwned().remove(0);
-        assertEquals(0,p.getTerritoryCardsOwned().size());
-
-        p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        p.addTerritoryCards(new TerritoryCard("Jolly",3, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertTrue(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
-        p.getTerritoryCardsOwned().remove(0);
-        p.getTerritoryCardsOwned().remove(0);
-        p.getTerritoryCardsOwned().remove(0);
-        assertEquals(0,p.getTerritoryCardsOwned().size());
-
-        p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        p.addTerritoryCards(new TerritoryCard("Jolly",3, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertTrue(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
-        p.getTerritoryCardsOwned().remove(0);
-        p.getTerritoryCardsOwned().remove(0);
-        p.getTerritoryCardsOwned().remove(0);
-        assertEquals(0,p.getTerritoryCardsOwned().size());
-
-        p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        p.addTerritoryCards(new TerritoryCard("Jolly",3, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertTrue(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
-        p.getTerritoryCardsOwned().remove(0);
-        p.getTerritoryCardsOwned().remove(0);
-        p.getTerritoryCardsOwned().remove(0);
-        assertEquals(0,p.getTerritoryCardsOwned().size());
-
-        p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Jolly",3, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertTrue(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        assertTrue(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        p.getTerritoryCardsOwned().remove(0);
+        p.getTerritoryCardsOwned().remove(0);
+        p.getTerritoryCardsOwned().remove(0);
+        assertEquals(0,p.getTerritoryCardsOwned().size());
+
+        p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
+        p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
+        p.addTerritoryCards(new TerritoryCard("Jolly",3, new Nation(NationsName.Mongolia),NationsName.Mongolia));
+        assertTrue(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        p.getTerritoryCardsOwned().remove(0);
+        p.getTerritoryCardsOwned().remove(0);
+        p.getTerritoryCardsOwned().remove(0);
+        assertEquals(0,p.getTerritoryCardsOwned().size());
+
+        p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
+        p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
+        p.addTerritoryCards(new TerritoryCard("Jolly",3, new Nation(NationsName.Mongolia),NationsName.Mongolia));
+        assertTrue(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        p.getTerritoryCardsOwned().remove(0);
+        p.getTerritoryCardsOwned().remove(0);
+        p.getTerritoryCardsOwned().remove(0);
+        assertEquals(0,p.getTerritoryCardsOwned().size());
+
+        p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
+        p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
+        p.addTerritoryCards(new TerritoryCard("Jolly",3, new Nation(NationsName.Mongolia),NationsName.Mongolia));
+        assertTrue(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        p.getTerritoryCardsOwned().remove(0);
+        p.getTerritoryCardsOwned().remove(0);
+        p.getTerritoryCardsOwned().remove(0);
+        assertEquals(0,p.getTerritoryCardsOwned().size());
+
+        p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
+        p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
+        p.addTerritoryCards(new TerritoryCard("Jolly",3, new Nation(NationsName.Mongolia),NationsName.Mongolia));
+        assertTrue(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
@@ -363,7 +376,7 @@ public class TestActionController {
         p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Jolly",3, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertTrue(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        assertTrue(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
@@ -374,7 +387,7 @@ public class TestActionController {
         p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertFalse(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        assertFalse(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
@@ -383,25 +396,25 @@ public class TestActionController {
         p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertFalse(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
-        p.getTerritoryCardsOwned().remove(0);
-        p.getTerritoryCardsOwned().remove(0);
-        p.getTerritoryCardsOwned().remove(0);
-        assertEquals(0,p.getTerritoryCardsOwned().size());
-
-        p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertFalse(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        assertFalse(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
         assertEquals(0,p.getTerritoryCardsOwned().size());
 
         p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
+        p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
+        p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
+        assertFalse(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        p.getTerritoryCardsOwned().remove(0);
+        p.getTerritoryCardsOwned().remove(0);
+        p.getTerritoryCardsOwned().remove(0);
+        assertEquals(0,p.getTerritoryCardsOwned().size());
+
+        p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertFalse(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        assertFalse(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
@@ -410,7 +423,7 @@ public class TestActionController {
         p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertFalse(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        assertFalse(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
@@ -419,7 +432,7 @@ public class TestActionController {
         p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertFalse(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        assertFalse(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
         p.getTerritoryCardsOwned().remove(0);
@@ -439,26 +452,26 @@ public class TestActionController {
         p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Infantry",0, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertTrue(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        assertTrue(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
         //assertEquals(4,controller.getActionController().useTerritoryCards(0,1,2,0));
 
         p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Cavalry",1, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertTrue(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        assertTrue(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
         //assertEquals(6,controller.getActionController().useTerritoryCards(0,1,2,0));
 
         p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Artillery",2, new Nation(NationsName.Mongolia),NationsName.Mongolia));
-        assertTrue(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        assertTrue(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
         //assertEquals(8,controller.getActionController().useTerritoryCards(0,1,2,0));
 
         Nation mong= controller.getCurrentGame().getMapWorld().getNation(NationsName.Mongolia);
         p.addTerritoryCards(new TerritoryCard("Infantry",0, mong,NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Cavalry",1, mong,NationsName.Mongolia));
         p.addTerritoryCards(new TerritoryCard("Artillery",2, mong,NationsName.Mongolia));
-        assertTrue(Checks.checkAreCardsPassedValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
+        assertTrue(Checks.checkAreTerritoryCardsValid(0,1,2,0, controller.getCurrentGame().getPlayers()));
         /*
         if(controller.getCurrentGame().getMapWorld().getNation(NationsName.Mongolia).getIdOwner() == p.getIdPlayer())
             assertEquals(12,controller.getActionController().useTerritoryCards(0,1,2,0));

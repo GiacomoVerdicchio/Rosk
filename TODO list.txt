@@ -32,16 +32,20 @@ SERVER
 -completare setup (prima delle ready) e testare						DONE	
 -refactor del flow di creazione del match e delle dipendenze dal server			DONE 
 
-
--vedere se il controller è serializable						
-
 -proteggere sezione di input (in modo da non usare le stringhe dove ci vorrebbe un	DONE
 	int che se no crasha tutto)
+-capire quali messaggi andranno letti (dal client handler)				DONE
+
+
+
+
+-testing urgente movementOfTroopsAfterConquer function
 
 -lightView tutta da fare
--rispondere al messaggio del nome
+-rispondere al messaggio del nome ????
 -creazione basic parser
--capire quali messaggi andranno letti (dal client handler)
+
+
 
 
 
@@ -53,6 +57,19 @@ NOTES:
 -quando avrò quasi finito devo mergiare i checkAttack and checkAttackDefend
 -un domani potrò aggiungere la possibilità di sospendere il match (e crearne uno nuovo in un'altra modalità (cioè creando o joinando) 	)->PER ORA UNA VOLTA SCELTO CREATE O JOIN RIMANGO
 BLOCCATO Lì e DEVO PER FORZA ANDARE AVANTI COSì
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

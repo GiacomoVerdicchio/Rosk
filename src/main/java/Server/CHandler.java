@@ -211,14 +211,13 @@ public class CHandler extends Thread implements Observer
      */
     public void messageHandler(ActionMessage message)
     {
-        if( true//something
-             )
+        if( isSetupFinished)
         {
 
         }
         else
         {
-            //socket.sendAnswer(new SerializedAnswer(new ErrorMessage(ERRORTYPES.WRONG_TURN)));
+            clientConnection.sendAnswer(new SerializedAnswer(new ErrorMessage("ERRORTYPES.WRONG_PHASE for this message "+ message.getType())));
         }
     }
 

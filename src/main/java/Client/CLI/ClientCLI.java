@@ -134,6 +134,7 @@ public class ClientCLI implements ClientInterface {
     @Override
     public void setupHandler(SetupAnswer answer) throws IOException {
         scanner=new Scanner(System.in);
+        //TODO inserire anche qui (come già c'è nel CHAnlder)) l'if di controllo sul setupPhase
         switch(answer.getType())
         {
             case UPDATE_LIST_PLAYERS :
@@ -174,6 +175,7 @@ public class ClientCLI implements ClientInterface {
             case START_GAME:
                 Printer.cls();
                 System.out.println("Il gioco sta iniziando!");
+                //TODO inserire setyup a false
                 break;
 
             case DISCONNECT:
@@ -185,9 +187,10 @@ public class ClientCLI implements ClientInterface {
     @Override
     public void messageHandler(ActionAnswer answer) {
 
+        //TODO inserire qui come c'è nel CHandler il check sulla setup a false
         switch(answer.getType())
         {
-            //TODO insert all the normal messages
+
         }
     }
 

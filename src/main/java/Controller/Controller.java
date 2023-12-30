@@ -100,11 +100,11 @@ public class Controller {
 
 
 
-    public boolean addTroopsUsingTerritoryCards(int index1, int index2, int index3, int idPlayer ) throws RuntimeException
+    public boolean addTroopsUsingTerritoryCards(int index1, int index2, int index3, int idPlayer )
     {
         if(idPlayer!= currentPlayerActing) return false;
         if(turnPhases.get(currentPlayerActing)!= PhaseTurn.fortify) return false;
-        if(! Checks.checkAreCardsPassedValid(index1, index2, index3, idPlayer, currentGame.getPlayers())) return false;
+        if(! Checks.checkAreTerritoryCardsValid(index1, index2, index3, idPlayer, currentGame.getPlayers())) return false;
 
         actionController.useTerritoryCards(index1, index2, index3, idPlayer);
         return true;
@@ -132,6 +132,8 @@ public class Controller {
         Player p =currentGame.getPlayers().get(target.getIdOwner());
         boolean res= actionController.computeAttack(start,target,attackTroops,defendTroops);
 
+
+
         if(res && currentGame.getMapWorld().getNations().stream().noneMatch(t-> t.getIdOwner()== p.getIdPlayer()))
         {
             aPlayerDied(p);
@@ -157,6 +159,14 @@ public class Controller {
         end.addTroops(numOfTroops);
 
         return true;
+    }
+
+
+
+    public boolean movementOfTroopsAfterConquer(Nation start, Nation end, int idPlayer, int numOfTroops, int numOfTroopsUsedForTheAttack)
+    {
+        if(numOfTroopsUsedForTheAttack> numOfTroops) return false;
+        return movementOfTroopsAtTheEnd(start, end, idPlayer, numOfTroops);
     }
 
 

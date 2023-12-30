@@ -99,7 +99,7 @@ public class Checks {
 
 
 
-    public static boolean checkAreCardsPassedValid(int index1, int index2, int index3, int idPlayer, ArrayList<Player> players)
+    public static boolean checkAreTerritoryCardsValid(int index1, int index2, int index3, int idPlayer, ArrayList<Player> players)
     {
         if(index1 < 0 || index2 < 0 || index3 < 0) return false;
         if(index1 > 4 || index2 > 4 || index3 > 4) return false;

@@ -151,6 +151,7 @@ public class TestGame {
         if(win) {
             assertEquals(idChiara, controller.getCurrentGame().getMapWorld().getContinents().get("southAmerica").getIdOwner());
             assertEquals(idChiara, controller.getCurrentGame().getMapWorld().getContinents().get("australia").getIdOwner());
+            //TODO never tested the movements of troops after conquer
         }
 
         assertTrue(controller.updateTurnPhase(1));//to moveAtEnd phase
