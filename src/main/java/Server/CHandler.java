@@ -6,8 +6,11 @@ import Client.Messages.SerializedMessage;
 import Client.Messages.SetupMessages.*;
 import Observer.Observer;
 import Server.Answer.Action.ErrorMessage;
+import Server.Answer.Action.ViewMessage;
+import Server.Answer.ActionCHandler;
 import Server.Answer.SerializedAnswer;
 import Server.Answer.Setup.*;
+import Server.Answer.SetupCHandler;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -24,9 +27,14 @@ public class CHandler extends Thread implements Observer
     private String nickname;
     private Match currentMatch;
     private boolean isHost;
-    private boolean isSetupFinished;
-
     private boolean isAlive=true;
+
+    private boolean isSetupFinished;
+    private SetupCHandler setupMessageHandler;
+
+    private ActionCHandler actionMessageHandler;
+
+
 
     public CHandler(Socket clientConnection) throws IOException {
         ClientConnection connection = new ClientConnection(clientConnection);
@@ -34,32 +42,16 @@ public class CHandler extends Thread implements Observer
         nickname="";
         isHost = false;
         isSetupFinished = false;
+        this.setupMessageHandler = new SetupCHandler(this);
+        this.actionMessageHandler=new ActionCHandler(this);
     }
 
 
-    private void handlingClosingConnection(){
-        if(currentMatch!=null)
-        {
-            if(currentMatch.isGameStarted() || this.isHost)
-            {
-                Disconnect disconnect = new Disconnect("You where disconnected because a client (or the host) exit the game");
-                for(CHandler c: currentMatch.getClients())
-                    c.clientConnection.sendAnswer(new SerializedAnswer(disconnect));
-                currentMatch.endingConnection();
-            }
-            else {
-                if(currentMatch.getClients().contains(this))
-                    currentMatch.getClients().remove(this);
-            }
-        }
-        this.interrupt();
-    }
 
     @Override
     public void run()
     {
         while(isAlive)
-        //while(isAlive())
         {
             if(connected)
                 readMessage();
@@ -81,13 +73,29 @@ public class CHandler extends Thread implements Observer
             SerializedMessage input = (SerializedMessage) clientConnection.getInputStream().readObject();
             if(input.getCommand() != null)
             {
-                SetupMessage message = input.getCommand();
-                setupHandler(message);
+                SetupMessage setupMessageFromClient = input.getCommand();
+                //handles the messages that could arrive during the setupPhase
+                if( ! isSetupFinished)
+                {
+                    setupMessageHandler.handle(setupMessageFromClient);
+                }
+                else
+                {
+                    clientConnection.sendAnswer(new SerializedAnswer(new ErrorMessage("ERRORTYPES.WRONG_PHASE for this message "+ setupMessageFromClient.getType())));
+                }
             }
+
             if(input.getAction() != null)
             {
-                ActionMessage message = input.getAction();
-                messageHandler(message);
+                ActionMessage actionMessageFromClient = input.getAction();
+                if( isSetupFinished)
+                {
+                    actionMessageHandler.handle(actionMessageFromClient);
+                }
+                else
+                {
+                    clientConnection.sendAnswer(new SerializedAnswer(new ErrorMessage("ERRORTYPES.WRONG_PHASE for this message "+ actionMessageFromClient.getType())));
+                }
             }
         }
         catch (IOException e)
@@ -104,145 +112,51 @@ public class CHandler extends Thread implements Observer
 
 
 
-    /**
-     * method setupHandler handles the messages that could arrive during the setupPhase, team choice, wizard choice and
-     * player readiness
-     * @param message the message that needs to be handled
-     * @throws IOException if closing the connection results in an error
-     */
-    public void setupHandler(SetupMessage message) throws IOException
-    {
-        if( ! isSetupFinished)
-            switch(message.getType())
+    private void handlingClosingConnection(){
+        if(currentMatch!=null)
+        {
+            if(currentMatch.isGameStarted() || this.isHost)
             {
-                case SETUP_NAME :
-                    nickname = ((SetupName)message).getNickname();
-                    break;
-
-                case CREATE_OR_JOIN:
-                    boolean create = ((CreateOrJoinMessage)message).isCreateTrue();
-                    if(create)
-                    {
-                        int numPlayersDesired=((CreateOrJoinMessage)message).getNum();
-                        currentMatch=serverReference.createNewMatch(numPlayersDesired, this);
-                        System.out.println("Created a game with players: "+ nickname+" in match : "+ currentMatch);
-                        System.out.println();
-                    }
-                    else {
-                        ListOfLobbies listOfLobbies;
-                        if(serverReference.getMatches().size()!=0)
-                            listOfLobbies = new ListOfLobbies(
-                                (ArrayList<String>) Printer.printListLobbySetup(serverReference.getMatches()),
-                                serverReference.getMatches().stream().map(t->t.getMatchId())
-                                        .sorted(Comparator.reverseOrder()).findFirst().get());
-                        else  {
-                            listOfLobbies =new ListOfLobbies(new ArrayList<>(),0);
-                        }
-                        clientConnection.sendAnswer(new SerializedAnswer(listOfLobbies));
-                    }
-                    break;
-
-
-                case CHOSEN_LOBBY:
-                    int idLobbyChosen = ((ChosenLobby)message).getId();
-                    currentMatch = serverReference.addPersonToAMatch(idLobbyChosen, this);
-
-                    for(CHandler c : currentMatch.getClients())
-                    {
-                        UpdateListPlayers listOfPlayersInThisMatch=new UpdateListPlayers
-                                ((ArrayList<String>) currentMatch.getClients().stream().map(t->t.nickname)
-                                        .collect(Collectors.toList()));
-                        c.clientConnection.sendAnswer(new SerializedAnswer(listOfPlayersInThisMatch));
-                    }
-                    System.out.println("Added a player: "+ nickname+" in match : "+ currentMatch);
-                    System.out.println();
-                    if(currentMatch.getClients().size() == currentMatch.getNumPlayersDesired())
-                    {
-                        currentMatch.getClients().stream().filter(t->t.isHost).findFirst()
-                                .get().getClientConnection().sendAnswer(new SerializedAnswer(new StartReadyPhase()));
-                    }
-                    break;
-
-                case READY_HOST:
-                        currentMatch.putReady(this);
-                        currentMatch.setGameStarted(true);
-                        currentMatch.getClients().stream().filter(x->! x.clientConnection.equals(this.clientConnection))
-                                .forEach(x->x.getClientConnection().sendAnswer(new SerializedAnswer(new ReadyRequestFromHost())));
-                    break;
-
-                case READY_GUEST:
-                    System.out.println("Guest ready: "+getNickname());
-                    boolean allReady = true;
-                    currentMatch.putReady(this);
-
-                    ArrayList<String> listReadyToString= new ArrayList<>();
-                    for(CHandler c: currentMatch.getReady().keySet())
-                    {
-                        listReadyToString.add(c.nickname+": "+currentMatch.getReady().get(c));
-                    }
-                    currentMatch.getClients()
-                            .forEach(x->x.getClientConnection().sendAnswer(new SerializedAnswer(new UpdateReadyPlayers(listReadyToString))));
-
-                    //if all players are ready then we can start the game
-                    for(CHandler c: currentMatch.getReady().keySet())
-                    {
-                        if(! currentMatch.getReady().get(c))
-                            allReady=false;
-                    }
-                    if(allReady) {
-                        currentMatch.getClients()
-                                .forEach(x -> x.getClientConnection().sendAnswer(new SerializedAnswer(new StartGame())));
-                        //TODO finish the general setup before starting the loop
-                        isSetupFinished=true;
-                    }
-                    break;
+                Disconnect disconnect = new Disconnect("You where disconnected because a client (or the host) exit the game");
+                for(CHandler c: currentMatch.getClients())
+                    c.clientConnection.sendAnswer(new SerializedAnswer(disconnect));
+                currentMatch.endingConnection();
             }
-        else
-        {
-            clientConnection.sendAnswer(new SerializedAnswer(new ErrorMessage("ERRORTYPES.WRONG_PHASE for this message "+ message.getType())));
+            else {
+                if(currentMatch.getClients().contains(this))
+                    currentMatch.getClients().remove(this);
+            }
         }
-
+        this.interrupt();
     }
-
-    /**
-     * Method messageHandler decides wheter to redirect the handling of the game messages to the planningHandler method
-     * or the actionHandler
-     * @param message the message that needs to be handles
-     */
-    public void messageHandler(ActionMessage message)
-    {
-        if( isSetupFinished)
-        {
-
-        }
-        else
-        {
-            clientConnection.sendAnswer(new SerializedAnswer(new ErrorMessage("ERRORTYPES.WRONG_PHASE for this message "+ message.getType())));
-        }
-    }
-
-
 
     @Override
     public void update(String message)
     {
-        System.out.println(message);
-        // socket.sendAnswer(new SerializedAnswer(new ViewMessage(message, mainController.getGame().getCurrentCharacterDeck(), mainController.getGame().getCurrentActiveCharacterCard(), mainController.isExpertGame())));
+        System.out.println("Content of view" + message);
+        clientConnection.sendAnswer(new SerializedAnswer(new ViewMessage(message)));
+        System.out.println();
+        System.out.println();
     }
-    public void setHost(boolean host) {
-        isHost = host;
+    public void setHost(boolean host) {isHost = host;}
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
-    public String getNickname() {
-        return nickname;
+    public void setServerReference(Server serverReference) {this.serverReference = serverReference;}
+    public void setCurrentMatch(Match currentMatch) {
+        this.currentMatch = currentMatch;
     }
-    public ClientConnection getClientConnection()
-    {
-        return clientConnection;
+    public void setSetupFinished(boolean setupFinished) {
+        isSetupFinished = setupFinished;
     }
-    public Server getServerReference() {
-        return serverReference;
+
+    public String getNickname() {return nickname;}
+    public ClientConnection getClientConnection() {return clientConnection;}
+    public Server getServerReference() {return serverReference;}
+    public Match getCurrentMatch() {
+        return currentMatch;
     }
-    public void setServerReference(Server serverReference) {
-        this.serverReference = serverReference;
+    public boolean isHost() {
+        return isHost;
     }
 }
