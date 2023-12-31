@@ -2,8 +2,10 @@ package Server.Answer;
 
 import Client.CLI.Printer;
 import Client.Messages.SetupMessages.*;
+import Controller.MineException;
 import Server.Answer.Setup.*;
 import Server.CHandler;
+import Server.ClientConnection;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,7 +20,7 @@ public class SetupCHandler {
     }
 
 
-    public void handle(SetupMessage message) throws IOException {
+    public void handle(SetupMessage message) throws IOException, MineException {
         switch (message.getType()) {
             case SETUP_NAME:
                 handleSetupName((SetupName) message);
@@ -60,6 +62,26 @@ public class SetupCHandler {
         }
     }
 
+    private void handleCreateGame(CreateOrJoinMessage createOrJoinMessage) throws IOException {
+        int numPlayersDesired = createOrJoinMessage.getNum();
+        cHandler.setCurrentMatch(cHandler.getServerReference().createNewMatch(numPlayersDesired, cHandler));
+        System.out.println("Created a game with players: " + cHandler.getNickname() + " in match : " + cHandler.getCurrentMatch());
+        System.out.println();
+    }
+
+    private void handleJoinGame() {
+        ListOfLobbies listOfLobbies;
+        if (cHandler.getServerReference().getMatches().size() != 0)
+            listOfLobbies = new ListOfLobbies(
+                    (ArrayList<String>) Printer.printListLobbySetup(cHandler.getServerReference().getMatches()),
+                    cHandler.getServerReference().getMatches().stream().map(t -> t.getMatchId())
+                            .sorted(Comparator.reverseOrder()).findFirst().get());
+        else {
+            listOfLobbies = new ListOfLobbies(new ArrayList<>(), 0);
+        }
+        cHandler.getClientConnection().sendAnswer(new SerializedAnswer(listOfLobbies));
+    }
+
     private void handleChosenLobby(ChosenLobby chosenLobby) throws IOException {
         int idLobbyChosen = chosenLobby.getId();
         cHandler.setCurrentMatch(cHandler.getServerReference().addPersonToAMatch(idLobbyChosen, cHandler));
@@ -85,7 +107,7 @@ public class SetupCHandler {
                 .forEach(x -> x.getClientConnection().sendAnswer(new SerializedAnswer(new ReadyRequestFromHost())));
     }
 
-    private void handleReadyGuest() {
+    private void handleReadyGuest() throws MineException {
         System.out.println("Guest ready: " + cHandler.getNickname());
         boolean allReady = true;
         cHandler.getCurrentMatch().putReady(cHandler);
@@ -101,12 +123,40 @@ public class SetupCHandler {
             if (!cHandler.getCurrentMatch().getReady().get(c))
                 allReady = false;
         }
-        if (allReady) {
+        if (allReady)
+        {
+            //send start game to all
             cHandler.getCurrentMatch().getClients()
                     .forEach(x -> x.getClientConnection().sendAnswer(new SerializedAnswer(new StartGame())));
-            // TODO finish the general setup before starting the loop
-            cHandler.setSetupFinished(true);
+            //initializing the controller
+
+            initializeGame();
         }
+    }
+
+    private void initializeGame() throws MineException {
+        cHandler.setSetupFinished(true);
+        //adding all the players to the controller
+        for(CHandler c : cHandler.getCurrentMatch().getClients())
+        {
+            cHandler.getCurrentMatch().getController().getSetupController().addPlayer(c.getNickname());
+        }
+        //all players ready
+        for(CHandler c : cHandler.getCurrentMatch().getClients())
+        {
+            cHandler.getCurrentMatch().getController().getSetupController().addReady(c.getNickname());
+        }
+
+
+        //TODO non so se è giusto qui ma in caso lo sposto prima
+        for(CHandler client : cHandler.getCurrentMatch().getClients())
+        {
+            cHandler.getCurrentMatch().getController().getCurrentGame().addObserver(client);
+        }
+
+        //general setup
+        cHandler.getCurrentMatch().getController().generalSetupAfterReady();
+
     }
 
     private void handleUnknownMessageType(SetupMessageENUM messageType) {
@@ -114,23 +164,4 @@ public class SetupCHandler {
         System.err.println("Unknown message type: " + messageType);
     }
 
-    private void handleCreateGame(CreateOrJoinMessage createOrJoinMessage) throws IOException {
-        int numPlayersDesired = createOrJoinMessage.getNum();
-        cHandler.setCurrentMatch(cHandler.getServerReference().createNewMatch(numPlayersDesired, cHandler));
-        System.out.println("Created a game with players: " + cHandler.getNickname() + " in match : " + cHandler.getCurrentMatch());
-        System.out.println();
-    }
-
-    private void handleJoinGame() {
-        ListOfLobbies listOfLobbies;
-        if (cHandler.getServerReference().getMatches().size() != 0)
-            listOfLobbies = new ListOfLobbies(
-                    (ArrayList<String>) Printer.printListLobbySetup(cHandler.getServerReference().getMatches()),
-                    cHandler.getServerReference().getMatches().stream().map(t -> t.getMatchId())
-                            .sorted(Comparator.reverseOrder()).findFirst().get());
-        else {
-            listOfLobbies = new ListOfLobbies(new ArrayList<>(), 0);
-        }
-        cHandler.getClientConnection().sendAnswer(new SerializedAnswer(listOfLobbies));
-    }
 }

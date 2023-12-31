@@ -36,17 +36,14 @@ SERVER
 	int che se no crasha tutto)
 -capire quali messaggi andranno letti (dal client handler)				DONE
 
+(-creazione classe lightView e gestione updates						DONE )
+-testing urgente movementOfTroopsAfterConquer function					DONE
 
-
-
--testing urgente movementOfTroopsAfterConquer function
-
--lightView tutta da fare
--rispondere al messaggio del nome ????
+-lightView tutta da fare								DONE
 -creazione basic parser
 
 
-
+-creazione print game (e design)
 
 
 

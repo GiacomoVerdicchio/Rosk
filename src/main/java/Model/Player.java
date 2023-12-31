@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Player {
 
     private String name;
-    int idPlayer;//id used to identify players
+    int idPlayer;
     ObjectiveCards objectiveCards;
     ArrayList<TerritoryCard> territoryCardOwned;
     boolean alive;

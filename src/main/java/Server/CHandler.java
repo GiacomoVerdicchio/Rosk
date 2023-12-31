@@ -4,8 +4,10 @@ import Client.CLI.Printer;
 import Client.Messages.ActionMessages.ActionMessage;
 import Client.Messages.SerializedMessage;
 import Client.Messages.SetupMessages.*;
+import Controller.MineException;
 import Observer.Observer;
 import Server.Answer.Action.ErrorMessage;
+import Server.Answer.Action.ErrorTypesENUM;
 import Server.Answer.Action.ViewMessage;
 import Server.Answer.ActionCHandler;
 import Server.Answer.SerializedAnswer;
@@ -53,8 +55,13 @@ public class CHandler extends Thread implements Observer
     {
         while(isAlive)
         {
-            if(connected)
-                readMessage();
+            if(connected) {
+                try {
+                    readMessage();
+                } catch (MineException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             else
             {
                 isAlive=false;
@@ -66,8 +73,7 @@ public class CHandler extends Thread implements Observer
     /**
      * Method readMessage reads messages coming from the client and redirects them to the correct handler
      */
-    public void readMessage()
-    {
+    public void readMessage() throws MineException {
         try
         {
             SerializedMessage input = (SerializedMessage) clientConnection.getInputStream().readObject();
@@ -81,7 +87,7 @@ public class CHandler extends Thread implements Observer
                 }
                 else
                 {
-                    clientConnection.sendAnswer(new SerializedAnswer(new ErrorMessage("ERRORTYPES.WRONG_PHASE for this message "+ setupMessageFromClient.getType())));
+                    clientConnection.sendAnswer(new SerializedAnswer(new ErrorMessage(ErrorTypesENUM.wrong_phase)));
                 }
             }
 
@@ -94,7 +100,7 @@ public class CHandler extends Thread implements Observer
                 }
                 else
                 {
-                    clientConnection.sendAnswer(new SerializedAnswer(new ErrorMessage("ERRORTYPES.WRONG_PHASE for this message "+ actionMessageFromClient.getType())));
+                    clientConnection.sendAnswer(new SerializedAnswer(new ErrorMessage(ErrorTypesENUM.wrong_phase)));
                 }
             }
         }

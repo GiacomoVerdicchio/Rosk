@@ -1,12 +1,16 @@
 package Client.CLI;
 
 import Client.ClientInterface;
+import Client.InformationGenerator;
 import Client.Messages.SerializedMessage;
 import Client.Messages.SetupMessages.*;
 import Server.Answer.Action.ActionAnswer;
+import Server.Answer.Action.ErrorMessage;
+import Server.Answer.Action.ViewMessage;
 import Server.Answer.SerializedAnswer;
 import Server.Answer.Setup.*;
 import Server.Match;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -15,7 +19,8 @@ import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ClientCLI implements ClientInterface {
+
+public class ClientCLI implements ClientInterface , InformationGenerator {
     private ServerConnection serverConnection;
     private Scanner scanner = new Scanner(System.in);
     private ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -187,9 +192,27 @@ public class ClientCLI implements ClientInterface {
     @Override
     public void messageHandler(ActionAnswer answer) {
 
-        //TODO inserire qui come c'è nel CHandler il check sulla setup a false
         switch(answer.getType())
         {
+            case ERROR_MESSAGE:
+                System.out.println(errorGenerator(((ErrorMessage)answer).getError(), MyView));
+                break;
+            case VIEW:
+                try
+                {
+                    MyView.parse((ViewMessage) answer);
+                    /*stdin.printGame();
+                    System.out.println(MyView.getCurrentTurnState().getGamePhase());
+                    if(main.getNickname().equals(MyView.getCurrentTurnState().getCurrentPlayer()))
+                    {
+                        System.out.println(informationCreator(MyView.getCurrentTurnState(), MyView.getCurrentTeams()).getInfoMessage());
+                    }*/
+                }
+                catch(JsonProcessingException e)
+                {
+                    System.out.println("Error in processing view, show commands aren't available");
+                }
+                break;
 
         }
     }

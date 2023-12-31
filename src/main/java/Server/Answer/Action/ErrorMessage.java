@@ -1,15 +1,15 @@
 package Server.Answer.Action;
 
 public class ErrorMessage extends ActionAnswer {
-    private final String message;
+    private ErrorTypesENUM error;
 
-    public ErrorMessage(String message) {
-        this.message = message;
+    public ErrorMessage(ErrorTypesENUM error) {
+        this.error = error;
         super.type = ActionAnswerENUM.ERROR_MESSAGE;
 
     }
 
-    public String getMessage() {
-        return message;
+    public ErrorTypesENUM getError() {
+        return error;
     }
 }

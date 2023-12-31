@@ -1,5 +1,6 @@
 package Model;
 
+import Observer.Observable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -14,7 +15,7 @@ import java.util.Collections;
 
 
 @JsonSerialize(using = SerializerCurrentGame.class)
-public class CurrentGame {
+public class CurrentGame extends Observable {
     private MapWorld mapWorld;
     private ArrayList<Player> players;
     private ArrayList<TerritoryCard> territoriesDeck;

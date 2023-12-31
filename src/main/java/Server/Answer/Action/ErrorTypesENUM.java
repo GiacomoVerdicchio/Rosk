@@ -13,5 +13,5 @@ public enum ErrorTypesENUM {
 
     wrong_movement_at_end,
 
-
+    wrong_phase
 }
