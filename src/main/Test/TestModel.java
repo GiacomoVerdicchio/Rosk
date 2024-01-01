@@ -13,11 +13,11 @@ public class TestModel {
         current.getMapWorld().getNations().stream().map(t->t.getNationName()).forEach(System.out::println);
 
         assertTrue(current.getMapWorld().getNation(NationsName.WestAustralia)!=null);
-        assertEquals(current.getMapWorld().getNation(NationsName.WestAustralia).getNeighbor().size(),3);
+        assertEquals(current.getMapWorld().getNation(NationsName.WestAustralia).getNeighbors().size(),3);
 
         //test confini
-        assertTrue(current.getMapWorld().getNation(NationsName.Japan).getNeighbor().contains(current.getMapWorld().getNation(NationsName.Kamchatka)));
-        assertTrue(current.getMapWorld().getNation(NationsName.Japan).getNeighbor().contains(current.getMapWorld().getNation(NationsName.Mongolia)));
+        assertTrue(current.getMapWorld().getNation(NationsName.Japan).getNeighbors().contains(NationsName.Kamchatka));
+        assertTrue(current.getMapWorld().getNation(NationsName.Japan).getNeighbors().contains(NationsName.Mongolia));
 
         //remove territory card from the remaining pile
         current.refillDeckTerritoriesRemaining();
@@ -37,5 +37,15 @@ public class TestModel {
         ter=current.drawCardFromRemaingPile();
         assertEquals(42-1,current.getTerritoriesRemainingDeck().size());
         System.out.println("Let's go (testModel)");
+    }
+
+
+
+    @Test
+    public void testBasicSuSerial() {
+        CurrentGame current = new CurrentGame();
+        current.addPlayer("adlòs");
+
+        System.out.println(current.modelToJson());
     }
 }

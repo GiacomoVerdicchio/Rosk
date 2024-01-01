@@ -154,7 +154,7 @@ public class ClientCLI implements ClientInterface , InformationGenerator {
             case START_READY_PHASE:
                 System.out.println("Host, are you ready? [Yes,No]");
                 String choice=scanner.nextLine();
-                if (choice.equals("Yes") || choice.equals("YES") || choice.equals("yes") || choice.equals("y")) {
+                if (choice.toLowerCase().equals("yes") || choice.equals("y")) {
                     serverConnection.sendMessage(new SerializedMessage(new ReadyHost()));
                 }else {
                     System.out.println("I will ask you only when a player will leave or join");
@@ -165,7 +165,7 @@ public class ClientCLI implements ClientInterface , InformationGenerator {
             case READY_NEED_GUEST:
                 System.out.println("Guest, are you ready? [Yes,No]");
                 String choice2=scanner.nextLine();
-                if (choice2.equals("Yes") || choice2.equals("YES") || choice2.equals("yes") || choice2.equals("y")) {
+                if (choice2.toLowerCase().equals("yes") || choice2.equals("y")) {
                     serverConnection.sendMessage(new SerializedMessage(new ReadyReplyFromGuest()));
                 }else {
                     System.out.println("I will ask you only when a player will leave or join");

@@ -3,10 +3,12 @@ package Model;
 import java.util.HashSet;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 public class Nation {
     private NationsName nationName;
     private int troops;
+    @JsonManagedReference
     private Set neighbors;
     private int idOwner;
 
@@ -20,7 +22,7 @@ public class Nation {
 
     public void addNeighbor(Nation nation)
     {
-        neighbors.add(nation);
+        neighbors.add(nation.nationName);
     }
 
     public int getIdOwner() {
@@ -29,7 +31,7 @@ public class Nation {
     public void setIdOwner(int idOwner) {
         this.idOwner = idOwner;
     }
-    public Set<Nation> getNeighbor(){return neighbors;}
+    public Set<NationsName> getNeighbors(){return neighbors;}
     public NationsName getNationName() {
         return nationName;
     }

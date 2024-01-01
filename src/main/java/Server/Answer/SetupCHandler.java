@@ -3,6 +3,7 @@ package Server.Answer;
 import Client.CLI.Printer;
 import Client.Messages.SetupMessages.*;
 import Controller.MineException;
+import Model.CurrentGame;
 import Server.Answer.Setup.*;
 import Server.CHandler;
 import Server.ClientConnection;
@@ -148,15 +149,18 @@ public class SetupCHandler {
         }
 
 
+
+        //general setup
+        cHandler.getCurrentMatch().getController().generalSetupAfterReady();
         //TODO non so se è giusto qui ma in caso lo sposto prima
         for(CHandler client : cHandler.getCurrentMatch().getClients())
         {
             cHandler.getCurrentMatch().getController().getCurrentGame().addObserver(client);
         }
 
-        //general setup
-        cHandler.getCurrentMatch().getController().generalSetupAfterReady();
 
+        CurrentGame tempGame = cHandler.getCurrentMatch().getController().getCurrentGame();
+        tempGame.notify(tempGame.modelToJson());
     }
 
     private void handleUnknownMessageType(SetupMessageENUM messageType) {

@@ -1,6 +1,7 @@
 package Model;
 
 import Observer.Observable;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -35,6 +36,20 @@ public class CurrentGame extends Observable {
         fillTerritoryCardsALL();
     }
 
+    /**
+     * Method used by the notifies to compile the json file with the currentGameState information
+     * @return a string representing the json file
+     */
+    public String modelToJson()
+    {
+        String json = null;
+        try {
+            json = new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
 
     public void fillTerritoryCardsALL()
     {

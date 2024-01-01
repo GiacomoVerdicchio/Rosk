@@ -151,7 +151,7 @@ public class Controller {
     public boolean movementOfTroopsAtTheEnd(Nation start, Nation end, int idPlayer, int numOfTroops)
     {
         if(start.equals(end)) return false;
-        if(! Checks.isNationReachable(start, end, idPlayer)) return false;
+        if(! Checks.isNationReachable(start, end, idPlayer, currentGame.getMapWorld())) return false;
         if(numOfTroops<0) return false;
         if(numOfTroops > start.getTroops()-1) return false;
 

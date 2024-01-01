@@ -48,11 +48,12 @@ public class Checks {
         return false;
     }
 
-    public static boolean isNationReachable(Nation start, Nation target, int idPlayer){
+    public static boolean isNationReachable(Nation start, Nation target, int idPlayer, MapWorld mapWorld){
         Set<Nation> visited = new HashSet<>();
         Queue<Nation> queue = new LinkedList<>();
         queue.add(start);
         visited.add(start);
+
 
         while (!queue.isEmpty()) {
             Nation current = queue.poll();
@@ -60,10 +61,11 @@ public class Checks {
             if (current == target) {
                 return true; // Target is reachable
             }
-            for (Nation neighbor : current.getNeighbor()) {
-                if (!visited.contains(neighbor) && idPlayer==neighbor.getIdOwner()) {
-                    visited.add(neighbor);
-                    queue.add(neighbor);
+
+            for(NationsName neighbor  : current.getNeighbors()) {
+                if (!visited.contains(mapWorld.getNation(neighbor)) && idPlayer== mapWorld.getNation(neighbor).getIdOwner()) {
+                    visited.add(mapWorld.getNation(neighbor));
+                    queue.add(mapWorld.getNation(neighbor));
                 }
             }
         }
@@ -80,9 +82,7 @@ public class Checks {
         if(troopsAttack<=1) return false;
         if(idStart==idEnd) return false;
 
-        return start.getNeighbor()
-                .stream().anyMatch(
-                        t->t.getNationName().equals(target.getNationName()      ));
+        return start.getNeighbors().stream().anyMatch(t->t.equals(target.getNationName()));
     }
     public static boolean checkForAttackAndDefend(Nation start, Nation target, int troopsAttack,int troopsDefend, GamePhase gamePhase , HashMap<Integer,PhaseTurn> phases)
     {

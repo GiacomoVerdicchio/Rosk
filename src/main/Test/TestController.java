@@ -130,9 +130,9 @@ public class TestController {
         controller.getCurrentGame().getMapWorld().getNation(NationsName.Mongolia).setIdOwner(0);
         controller.getCurrentGame().getMapWorld().getNation(NationsName.Kamchatka).setIdOwner(0);
         controller.getCurrentGame().getMapWorld().getNation(NationsName.NorthAfrica).setIdOwner(1);
-        assertTrue(Checks.isNationReachable(controller.getCurrentGame().getMapWorld().getNation(NationsName.Japan),controller.getCurrentGame().getMapWorld().getNation(NationsName.Mongolia), 0));
-        assertTrue(Checks.isNationReachable(controller.getCurrentGame().getMapWorld().getNation(NationsName.Japan),controller.getCurrentGame().getMapWorld().getNation(NationsName.Kamchatka), 0));
-        assertFalse(Checks.isNationReachable(controller.getCurrentGame().getMapWorld().getNation(NationsName.Japan),controller.getCurrentGame().getMapWorld().getNation(NationsName.NorthAfrica), 0));
+        assertTrue(Checks.isNationReachable(controller.getCurrentGame().getMapWorld().getNation(NationsName.Japan),controller.getCurrentGame().getMapWorld().getNation(NationsName.Mongolia), 0,controller.getCurrentGame().getMapWorld()));
+        assertTrue(Checks.isNationReachable(controller.getCurrentGame().getMapWorld().getNation(NationsName.Japan),controller.getCurrentGame().getMapWorld().getNation(NationsName.Kamchatka), 0,controller.getCurrentGame().getMapWorld()));
+        assertFalse(Checks.isNationReachable(controller.getCurrentGame().getMapWorld().getNation(NationsName.Japan),controller.getCurrentGame().getMapWorld().getNation(NationsName.NorthAfrica), 0,controller.getCurrentGame().getMapWorld()));
     }
 
     @Test
